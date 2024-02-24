@@ -1,5 +1,13 @@
-function getBooks(req, res, next) {
-  res.send("getBooks");
+import Book from "../models/book.js";
+
+async function getBooks(req, res, next) {
+  try {
+    const books = await Book.find();
+
+    res.send(books);
+  } catch (error) {
+    next(error);
+  }
 }
 
 function getBook(req, res, next) {
@@ -14,16 +22,14 @@ function updateBook(req, res, next) {
   res.send("updateBook");
 }
 
-
 function deleteBook(req, res, next) {
-    res.send("deleteBook");
-  }
-  
+  res.send("deleteBook");
+}
 
-  export default {
-    getBooks,
-    getBook,
-    createBook,
-    updateBook,
-    deleteBook,
-  };
+export default {
+  getBooks,
+  getBook,
+  createBook,
+  updateBook,
+  deleteBook,
+};
