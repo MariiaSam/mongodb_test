@@ -10,20 +10,83 @@ async function getBooks(req, res, next) {
   }
 }
 
-function getBook(req, res, next) {
-  res.send("getBook");
+async function getBook(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const book = await Book.findById(id);
+
+    if (book === null) {
+      return res.status(404).send("Book not found");
+    }
+
+    res.send(book);
+  } catch (error) {
+    next(error);
+  }
 }
 
-function createBook(req, res, next) {
-  res.send("createBook");
+
+ 
+
+async function createBook(req, res, next) {
+  //joi 
+  
+  const book = {
+    title: req.body.title,
+    author: req.body.author,
+    genre: req.body.genre,
+    year: req.body.year,
+  };
+
+  try {
+    const result = await Book.create(book);
+
+    res.status(201).send(result);
+  } catch (error) {
+    next(error);
+  }
 }
 
-function updateBook(req, res, next) {
-  res.send("updateBook");
+async function updateBook(req, res, next) {
+  // Joi 
+
+  const { id } = req.params;
+
+  const book = {
+    title: req.body.title,
+    author: req.body.author,
+    genre: req.body.genre,
+    year: req.body.year,
+  };
+
+  try {
+    const result = await Book.findByIdAndUpdate(id, book, { new: true });
+
+    if (result === null) {
+      return res.status(404).send("Book not found");
+    }
+
+    res.send(result);
+  } catch (error) {
+    next(error);
+  }
 }
 
-function deleteBook(req, res, next) {
-  res.send("deleteBook");
+async function deleteBook(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const result = await Book.findByIdAndDelete(id);
+
+    if (result === null) {
+      return res.status(404).send("Book not found:(");
+    }
+
+    res.send({ id });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export default {
