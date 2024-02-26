@@ -4,7 +4,7 @@ const bookSchema = new mongoose.Schema({
 title: {
     type: String,
     required: true,
-    match: /[\w\s]+/, //поле маю задовольняти регулярному виразу
+    match: /[\w\s]+/, //поле має задовольняти регулярному виразу
   },
   author: {
     type: String,
