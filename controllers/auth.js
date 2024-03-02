@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user.js";
+const {SECRET_KEY} = process.env;
 
 async function register(req, res, next) {
   const { name, email, password } = req.body;
@@ -15,6 +16,7 @@ async function register(req, res, next) {
     if (user !== null) {
       return res.status(409).send({ message: "User already registered" });
     }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     await User.create({
@@ -23,9 +25,7 @@ async function register(req, res, next) {
       password: passwordHash,
     });
 
-    // console.log(result);
-
-    res.status(201).send({ message: "Register successfully" });
+    res.status(201).send({ message: "Registration successfully" });
   } catch (error) {
     next(error);
   }
@@ -40,27 +40,23 @@ async function login(req, res, next) {
 
     if (user === null) {
       console.log("Email");
-      return res
-        .status(401)
-        .send({ message: "Email or password is incorrect" });
+      return res.status(401).send({ message: "Email is incorrect" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch === false) {
       console.log("Password");
-      return res
-        .status(401)
-        .send({ message: "Email or password is incorrect" });
+      return res.status(401).send({ message: "password is incorrect" });
     }
     // res.end("Login successful");
 
-   const token =  jwt.sign({
+    const token = jwt.sign({
       id: user._id,
       name: user.name,
-    });
-
-    res.end({ token: token });
+    }, SECRET_KEY);
+    
+    res.json({ token: token });
   } catch (error) {
     next(error);
   }
