@@ -54,7 +54,9 @@ async function login(req, res, next) {
     const token = jwt.sign({
       id: user._id,
       name: user.name,
-    }, SECRET_KEY);
+    }, SECRET_KEY,
+    // { expiresIn: 60 * 60 }
+    );
     
     res.json({ token: token });
   } catch (error) {
