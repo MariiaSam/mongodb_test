@@ -57,11 +57,22 @@ async function login(req, res, next) {
     }, SECRET_KEY,
     // { expiresIn: 60 * 60 }
     );
-    
+    await User.findByIdAndUpdate(user._id, { token } )
+
     res.json({ token: token });
   } catch (error) {
     next(error);
   }
 }
 
-export default { register, login };
+async function logout(req, res, next) {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { token: null });
+
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default { register, login, logout };

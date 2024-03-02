@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
 const bookSchema = new mongoose.Schema({
@@ -31,8 +32,13 @@ title: {
     type: Boolean,
     default: false,
   },
-},
-{ timestamps: true }
+  
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+  },
+  { timestamps: true }
 );
 
 export default mongoose.model("Book", bookSchema);  

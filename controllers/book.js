@@ -1,8 +1,9 @@
 import Book from "../models/book.js";
 
 async function getBooks(_, res, next) {
+  console.log(req.user);
   try {
-    const books = await Book.find();
+    const books = await Book.find({ ownerId: req.user.id });
 
     res.send(books);
   } catch (error) {
@@ -17,7 +18,14 @@ async function getBook(req, res, next) {
     const book = await Book.findById(id);
 
     if (book === null) {
-      return res.status(404).send("Book not found");
+      return res.status(404).send("Book not found:(");
+    }
+
+    if (book.ownerId.toString() !== req.user.id) {
+
+      // return res.status(403).send("Access denied");
+
+      return res.status(404).send("Book not found:(");
     }
 
     res.send(book);
@@ -26,17 +34,16 @@ async function getBook(req, res, next) {
   }
 }
 
-
- 
-
 async function createBook(req, res, next) {
-  //joi 
-  
+  //joi
+
   const book = {
     title: req.body.title,
     author: req.body.author,
     genre: req.body.genre,
     year: req.body.year,
+    ownerId: req.user.id,
+    
   };
 
   try {
@@ -49,7 +56,7 @@ async function createBook(req, res, next) {
 }
 
 async function updateBook(req, res, next) {
-  // Joi 
+  // Joi
 
   const { id } = req.params;
 

@@ -1,33 +1,46 @@
-import Jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
-
+import User from "../models/user.js";
 
 function auth(req, res, next) {
-    const authHeader = req.headers.authorization
-    console.log(authHeader)
- 
-    if(typeof authHeader === 'undefined') {
-    return res.this.state(401).send({message: "Invalid token"})
+  const authorizationHeader = req.headers.authorization;
+
+  if (typeof authorizationHeader === "undefined") {
+    return res.status(401).send({ message: "Invalid token" });
+  }
+
+  const [bearer, token] = authorizationHeader.split(" ", 2);
+
+  if (bearer !== "Bearer") {
+    return res.status(401).send({ message: "Invalid token" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decode) => {
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).send({ message: "Token expired" });
+      }
+
+      return res.status(401).send({ message: "Invalid token" });
     }
 
-    const [bearer, token] = authHeader.split(' ', 2)
+    const user = await User.findById(decode.id);
 
-    if (bearer !== "Bearer") {
-        return res.status(401).send({ message: "invalid token"})
+    if (user === null) {
+      return res.status(401).send({ message: "Invalid token" });
     }
 
-    Jwt.verify(token, process.env.SECRET_KEY, (err, decode ) => {
-        if (err) {
-            if (err.name === "TokenExpiredError") {
-              return res.status(401).send({ message: "Token expired" });
-            }
-      
-            return res.status(401).send({ message: "Invalid token" });
-          }
- 
-    
-    })
+    if (user.token !== token) {
+      return res.status(401).send({ message: "Invalid token" });
+    }
 
+    req.user = {
+      id: decode.id,
+      name: decode.name,
+    };
+
+    next();
+  });
 }
 
-export default auth
+export default auth;
